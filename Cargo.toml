@@ -1,0 +1,13 @@
+[package]
+name = "mexrust"
+version = "0.1.0"
+authors = ["none <noreply>"]
+edition = "2018"
+build="build.rs"
+
+[dependencies]
+rayon ="*"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type=["cdylib"]
