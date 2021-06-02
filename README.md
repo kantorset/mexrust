@@ -1,13 +1,13 @@
 # MexRust
 
-MexRust is a proof of concept library demonstrating the generating of Mex functions. This was developed by extending https://github.com/nclack/mexrs which provided a very minimal example but did not have functionality to actually pass data from Matlab or Octave into rust. This was developed partly as a project for a relatively inexperienced rust user to experiment with rust and the rust FFI so caveat emptor. 
+MexRust is a proof of concept library demonstrating the generation of Mex functions (for interfacing with MATLAB / Octave) from rust. This was developed by extending https://github.com/nclack/mexrs which provided a very minimal example but did not have functionality to actually pass data from Matlab or Octave into rust. This was developed partly as a project for a relatively inexperienced rust user to experiment with rust and the rust FFI so caveat emptor. 
   
 
 ## Usage
 
 
 ### lib.rs
-MEX functions are basically just plugins for MATLAB. More precisely, they are just shared object libraries with a special entry point for MATLAB/Octave named ```mexFunction``` any shared object library linked against ```libmex``` or ```liboctave``` with a ```mexFunction``` symbol and the correct file extension can be called as a mex function. For this rust/mex example we just create a rust dylib and put the rust code we want to call from MATLAB/Octave in an ```extern "C"``` function call ```mexFunction```. The unsafe code interacting with the MATLAB API is in the ```mex_rust``` module and called through the ```MexInterface``` struct. Here is an example mexFunction that does nothing particularly useful other than demonstrating passing data back and forth between rust and matlab with rather pointless computations done in rust.
+MEX functions are basically just plugins for MATLAB. More precisely, they are just shared object libraries with a special entry point for MATLAB/Octave named ```mexFunction``` any shared object library linked against ```libmex``` or ```liboctave``` with a ```mexFunction``` symbol and the correct file extension can be called as a mex function. For this rust/mex example we just create a rust dylib and put the rust code we want to call from MATLAB/Octave in an ```extern "C"``` function called ```mexFunction```. The unsafe code interacting with the MATLAB API is in the ```mex_rust``` module and called through the ```MexInterface``` struct. Here is an example mexFunction that does nothing particularly useful other than demonstrating passing data back and forth between rust and matlab with rather pointless computations done in rust.
 
 ```rust
 #![allow(non_camel_case_types)]
@@ -139,7 +139,7 @@ It also defines the MexInterface class which packages the pointers to the inputs
 ## Limitations / TODO
 
 There are many ways this could be improved / extended
-  1. Currently complex (real + imaginary) arrays are not supported. This is made annoyingly messy by the fact that octave's mex interface exposes separate real and imaginary pointers for complex data while MATLAB 2018b and later using interleaved real / imaginary data but prior to 2018b it also used a split real and imaginary representation.  
+  1. Currently complex (real + imaginary) arrays are not supported. This is made annoyingly messy by the fact that octave's mex interface exposes separate real and imaginary pointers for complex data while MATLAB 2018b and later uses interleaved real / imaginary data but prior to 2018b it also used a split real and imaginary representation.  
   2. Currently only 2D arrays are supported, support for higher dimensional arrays would be straightforward. 
   3. Structs and Struct arrays are not supported. Macros could probably be used to enable passing (compatible) rust structs to MATLAB / Octave and receiving MATLAB / Octave structs into rust struct. This would likely require some Macros to derive some MEXSerializable attribute or something. An analagous capability is present in https://github.com/kantorset/MexPackUnpack but using C++ template metaprogamming.
   4. Cell arrays are not supported. 
