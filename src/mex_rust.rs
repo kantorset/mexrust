@@ -3,8 +3,10 @@
 pub mod mex_rust{
 
     use std::os::raw::c_int;
+    use std::os::raw::c_char;
     use std::slice;
     use std::ffi::CString;
+    use std::ffi::CStr;
     use core::fmt::Display;
 
     //use std::marker::PhantomData;
@@ -62,6 +64,7 @@ pub mod mex_rust{
     extern "C" {
         fn mexPrintf(fmt: *const u8, ...);
         fn mxGetPr(mx: *mut mxArray)-> *mut f64;
+        fn mxArrayToString(mx: *mut mxArray)-> *mut c_char;
         fn mxGetM(mx: *mut mxArray)-> usize;
         fn mxGetN(mx: *mut mxArray)-> usize;
         fn mxCreateNumericMatrix(m: usize, n: usize,classtype: mxClassID,complexity: mxClassType)-> *mut mxArray;
@@ -161,20 +164,14 @@ pub mod mex_rust{
 
         pub fn get_string (&self,argnum: i32)->Option<String>
         {
-
-
             if argnum<self.nrhs {
-                let mut return_string = String::new();
                 unsafe{
-                    //Matlab / Octave treat strings (with single quotes ') just like a normal array but of ascii characters
-                    let raw_pointer: *mut u8 = mxGetPr(*self.prhs.offset(argnum as isize)) as *mut u8;
-                    let M: usize = mxGetM(*self.prhs.offset(argnum as isize));
-                    let N: usize = mxGetN(*self.prhs.offset(argnum as isize ));        
-                    for i in 0..M*N {
-                        return_string.push(*raw_pointer.offset(i as isize) as char)
+                    let raw_pointer: *mut c_char = mxArrayToString(*self.prhs.offset(argnum as isize));
+                    let rust_string = CStr::from_ptr(raw_pointer).to_str();
+                    match rust_string {
+                        Ok(s)=>Some(s.to_string()),
+                        Err(_e)=>None
                     }
-
-                    return Some(return_string);
                 }
             } else{
                 return None;

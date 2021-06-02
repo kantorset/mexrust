@@ -7,7 +7,7 @@ MexRust is a proof of concept library demonstrating the generation of Mex functi
 
 
 ### lib.rs
-MEX functions are basically just plugins for MATLAB. More precisely, they are just shared object libraries with a special entry point for MATLAB/Octave named ```mexFunction``` any shared object library linked against ```libmex``` or ```liboctave``` with a ```mexFunction``` symbol and the correct file extension can be called as a mex function. For this rust/mex example we just create a rust dylib and put the rust code we want to call from MATLAB/Octave in an ```extern "C"``` function called ```mexFunction```. The unsafe code interacting with the MATLAB API is in the ```mex_rust``` module and called through the ```MexInterface``` struct. Here is an example mexFunction that does nothing particularly useful other than demonstrating passing data back and forth between rust and matlab with rather pointless computations done in rust.
+MEX functions are basically just plugins for MATLAB / Octave. More precisely, they are just shared object libraries with a special entry point for MATLAB/Octave named ```mexFunction```. Any shared object library linked against ```libmex``` or ```liboctave``` with a ```mexFunction``` symbol and the correct file extension can be called as a mex function. For this rust/mex example we just create a rust dylib and put the rust code we want to call from MATLAB/Octave in an ```extern "C"``` function called ```mexFunction```. The unsafe code interacting with the MATLAB API is in the ```mex_rust``` module and called through the ```MexInterface``` struct. Here is an example mexFunction that does nothing particularly useful other than demonstrating passing data back and forth between rust and matlab and doing some rather pointless computations in rust.
 
 ```rust
 #![allow(non_camel_case_types)]
@@ -79,15 +79,14 @@ A simple makefile is provided
 MEX_FUNCTION_NAME=mex_rust
 MEX_EXTENSION=mex #change to mexa64 for matlab on linux (mexw64 for matlab on windows, etc)
 
-
 mex_debug: export MEX_LIB_NAME=octave #change this to mex for matlab
-mex_debug: export MEX_LIB_PATH=/usr/lib/x86_64-linux-gnu/ #change to path to matlab lib directory with libmex.so
+mex_debug: export MEX_LIB_PATH=/usr/lib/x86_64-linux-gnu/ #For matlab change this to path to matlab directory with libmex.so e.g. on linux /usr/local/MATLAB/R<matlab version>/bin/glnxa64
 mex_debug: src/lib.rs
   cargo build
   cp -p target/debug/libmexrust.so ${MEX_FUNCTION_NAME}.${MEX_EXTENSION}
 
 mex_release: export MEX_LIB_NAME=octave #change this to mex for matlab
-mex_release: export MEX_LIB_PATH=/usr/lib/x86_64-linux-gnu/ #change to path to matlab lib directory with libmex.so
+mex_release: export MEX_LIB_PATH=/usr/lib/x86_64-linux-gnu/ #For matlab change this to path to matlab directory with libmex.so e.g. on linux /usr/local/MATLAB/R<matlab version>/bin/glnxa64
 mex_release: src/lib.rs
   cargo build --release
   cp -p target/release/libmexrust.so ${MEX_FUNCTION_NAME}.${MEX_EXTENSION}
@@ -115,7 +114,7 @@ ans = 0
 ```
 
 ### mex_rust.rs
-The underlying code to do the interfacing with the matlab mex api is in ```mex_rust.rs``` . It defines a wrapper class to wrap a raw matlab pointer in a slice. 
+The underlying code to do the interfacing with the MATLAB / Octave mex api is in ```mex_rust.rs``` . It defines a wrapper class to wrap a raw matlab pointer in a slice. 
 
 ```rust
     pub struct WrappedMex<'a,T>{
@@ -126,7 +125,7 @@ The underlying code to do the interfacing with the matlab mex api is in ```mex_r
 ```
 
 
-It also defines the MexInterface class which packages the pointers to the inputs and outputs received from Matlab/Octave and provides methods to extract them into rust and pass back to matlab.
+It also defines the MexInterface class which packages the pointers to the inputs and outputs received from Matlab/Octave and provides methods to extract them into rust and pass back to MATLAB / Octave.
 ```rust
     pub struct MexInterface{
         nlhs: c_int,
